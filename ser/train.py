@@ -7,11 +7,15 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from model import Net
 import typer
+import os
+from datetime import datetime
+import json 
 
 main = typer.Typer()
 
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
+RUN_DIR = PROJECT_ROOT / "run"
 
 @main.command()
 def train(
@@ -19,7 +23,7 @@ def train(
         ..., "-n", "--name", help="Name of experiment to save under."
     ),
     epochs: int = typer.Option(
-        2, "-e", "--epochs", help="Number of epochs to train for."
+        1, "-e", "--epochs", help="Number of epochs to train for."
     ),
     batch_size: int = typer.Option(
         1000, "-bs", "--batch_size", help="Batch size."
@@ -29,6 +33,8 @@ def train(
     )
 ):
     print(f"Running experiment {name}")
+    train_datetime = datetime.now()
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load model
@@ -88,3 +94,23 @@ def train(
                 print(
                     f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
                 )
+    
+        day = train_datetime.strftime("%d")
+        month = train_datetime.strftime("%m")
+        year = train_datetime.strftime("%Y")
+        hour = train_datetime.strftime("%H")
+        minute = train_datetime.strftime("%M")
+        separator = "_"
+        fname = separator.join([name, day, month, year, hour, minute])
+        print(fname)
+
+        torch.save(model, os.path.join(RUN_DIR, fname+'.pth'))
+
+        hyperparams = {
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate
+        }
+
+        with open(fname+'.json', 'w') as f:
+            json.dump(hyperparams, f)
