@@ -1,6 +1,7 @@
 from pathlib import Path
 from torch.utils.data import DataLoader
-from ser.transforms import get_transforms, datasets
+from ser.transforms import get_transforms
+from torchvision import datasets
 
 
 PROJECT_ROOT = Path(__file__).parent.parent
