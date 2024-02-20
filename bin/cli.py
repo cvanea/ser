@@ -7,7 +7,6 @@ from ser.train import training
 
 main = typer.Typer()
 
-
 @main.command()
 def train(
     name: str = typer.Option(

@@ -1,18 +1,12 @@
-from pathlib import Path
 import torch
 from torch import optim
-import torch.nn as nn
 import torch.nn.functional as F
 
 from ser.model import Net
 from ser.data import data_loader
 from ser.transforms import transform
 
-import typer
 
-main = typer.Typer()
-
-@main.command()
 def training(
     device,
     name,
