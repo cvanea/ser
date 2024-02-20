@@ -4,6 +4,10 @@ from torchvision import datasets, transforms
 from pathlib import Path
 import torch
 from torch import optim
+from ser.data import training_dataloader, validation_dataloader
+import torch.nn.functional as F
+from ser.transforms import get_transforms
+
 
 @main.command()
 def train(
@@ -16,9 +20,9 @@ def train(
 ):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    epochs = epochs
-    batch_size = batch_size
-    learning_rate = learning_rate
+    # epochs = epochs
+    # batch_size = batch_size
+    # learning_rate = learning_rate
 
     # save the parameters!
     with open(PROJECT_ROOT / "experiments" / name / "params.txt", "w") as f:
@@ -34,24 +38,11 @@ def train(
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # torch transforms
-    ts = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
-    )
-
+    ts = get_transforms()
+    
     # dataloaders
-    training_dataloader = DataLoader(
-        datasets.MNIST(root="../data", download=True, train=True, transform=ts),
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=1,
-    )
-
-    validation_dataloader = DataLoader(
-        datasets.MNIST(root=DATA_DIR, download=True, train=False, transform=ts),
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=1,
-    )
+    training_dataloader = training_dataloader(batch_size, ts)
+    validation_dataloader = validation_dataloader(batch_size, ts)
 
     # train
     for epoch in range(epochs):
