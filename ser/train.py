@@ -1,8 +1,8 @@
 import torch
-from ser.data import training_dataloader, validation_dataloader
+# from ser.data import training_dataloader, validation_dataloader
 import torch.nn.functional as F
 
-def train(model, device, optimizer, epochs):
+def train(model, device, optimizer, epochs, training_dataloader, validation_dataloader):
     # train
     for epoch in range(epochs):
         for i, (images, labels) in enumerate(training_dataloader):
