@@ -70,7 +70,7 @@ class MyTraining:
             fname = separator.join([day, month, year, hour, minute])
             print(fname)
 
-            run_dir = os.path.join(PROJECT_ROOT, self.name)
+            run_dir = os.path.join(PROJECT_ROOT, "runs", self.name)
             if not os.path.isdir(run_dir):
                 os.makedirs(run_dir)
             print(run_dir)
