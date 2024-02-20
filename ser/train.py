@@ -5,6 +5,7 @@ import typer
 import os
 from datetime import datetime
 import json 
+from dataclasses import dataclass
 
 main = typer.Typer()
 
@@ -88,11 +89,12 @@ class MyTraining:
                         
             
             # Save hyperparameters at the end of training
-            hyperparams = {
-                "epochs": self.epochs,
-                "batch_size": self.batch_size, 
-                "learning_rate": self.learning_rate 
-            }
-
-            with open(os.path.join(run_dir, fname+'.json', 'w')) as f:
-                json.dump(hyperparams, f)
+            @dataclass
+            class Hyperparams:
+                epochs: int 
+                batch_size: int 
+                learning_rate: float 
+            
+            hp = Hyperparams(self.epochs, self.batch_size, self.learning_rate)
+            with open(os.path.join(run_dir, fname+'.json'), 'w') as f:
+                json.dump(hp, f)
