@@ -3,19 +3,14 @@ import torch
 from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+
 from bin.model import Net
-import typer
 from bin.data import data_loader
 from bin.transforms import transform
 
+import typer
 
 main = typer.Typer()
-
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-
 
 @main.command()
 def training(
