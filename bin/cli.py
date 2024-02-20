@@ -1,14 +1,15 @@
 from pathlib import Path
 import torch
 from torch import optim
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+# import torch.nn as nn
+# import torch.nn.functional as F
+# from torch.utils.data import DataLoader
+# from torchvision import datasets, transforms
 from ser.model import Net
 from ser.transforms import get_transforms
 from ser.train import train as training_loop
 import typer
+from ser.data import training_dataloader as train_dl, validation_dataloader as val_dl
 
 main = typer.Typer()
 
@@ -28,6 +29,8 @@ def train(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # save the parameters!
+    if not (PROJECT_ROOT / "experiments" / name).exists():
+        (PROJECT_ROOT / "experiments" / name).mkdir(parents=True)
     with open(PROJECT_ROOT / "experiments" / name / "params.txt", "w") as f:
         f.write(f"name: {name}\n")
         f.write(f"epochs: {epochs}\n")
@@ -44,10 +47,10 @@ def train(
     ts = get_transforms()
 
     # dataloaders
-    training_dataloader = training_dataloader(batch_size, ts)
-    validation_dataloader = validation_dataloader(batch_size, ts)
+    training_dataloader = train_dl(batch_size, ts)
+    validation_dataloader = val_dl(batch_size, ts)
 
-    training_loop()
+    training_loop(model, device, optimizer, epochs, training_dataloader, validation_dataloader)
 
 
 @main.command()
