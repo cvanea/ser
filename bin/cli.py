@@ -1,9 +1,9 @@
 import torch
 import typer
 
-from bin.model import Net
-from bin.data import data_loader
-from bin.train import training
+from ser.model import Net
+from ser.data import data_loader
+from ser.train import training
 
 main = typer.Typer()
 

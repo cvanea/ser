@@ -1,12 +1,12 @@
-from pathlib import Path
+﻿from pathlib import Path
 import torch
 from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
 
-from bin.model import Net
-from bin.data import data_loader
-from bin.transforms import transform
+from ser.model import Net
+from ser.data import data_loader
+from ser.transforms import transform
 
 import typer
 
