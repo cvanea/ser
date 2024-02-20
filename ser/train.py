@@ -5,12 +5,30 @@ import typer
 import os
 from datetime import datetime
 import json 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+from git import Repo
 
 main = typer.Typer()
 
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
+
+repo = Repo(PROJECT_ROOT)
+
+@dataclass
+class Hyperparams:
+    epochs: int 
+    batch_size: int 
+    learning_rate: float 
+    commit_hash: str
+
+    def save(self, path):
+        '''
+        Save hyperparams to a JSON file using the specified save path.
+        '''
+        with open(path, 'w') as f:
+                json.dump(asdict(self), f)
+
 
 class MyTraining:
 
@@ -29,7 +47,7 @@ class MyTraining:
     def train(self):
 
         train_datetime = datetime.now()
-
+  
         # Define save paths
         day = train_datetime.strftime("%d")
         month = train_datetime.strftime("%m")
@@ -89,12 +107,10 @@ class MyTraining:
                         
             
             # Save hyperparameters at the end of training
-            @dataclass
-            class Hyperparams:
-                epochs: int 
-                batch_size: int 
-                learning_rate: float 
+            # Get latest commit associated with train.py and add to hyperparams
+            latest_commit = str(list(repo.iter_commits(all=True, max_count=1, paths='ser/train.py'))[0])
+            print(latest_commit)
+
+            hp = Hyperparams(self.epochs, self.batch_size, self.learning_rate, latest_commit)
+            hp.save(os.path.join(run_dir, fname+'.json'))
             
-            hp = Hyperparams(self.epochs, self.batch_size, self.learning_rate)
-            with open(os.path.join(run_dir, fname+'.json'), 'w') as f:
-                json.dump(hp, f)
