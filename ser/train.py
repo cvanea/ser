@@ -28,8 +28,28 @@ class MyTraining:
     def train(self):
 
         train_datetime = datetime.now()
-        
+
+        # Define save paths
+        day = train_datetime.strftime("%d")
+        month = train_datetime.strftime("%m")
+        year = train_datetime.strftime("%Y")
+        hour = train_datetime.strftime("%H")
+        minute = train_datetime.strftime("%M")
+        separator = "_"
+        fname = separator.join([day, month, year, hour, minute])
+        run_dir = os.path.join(PROJECT_ROOT, "runs", self.name)
+
+        if not os.path.isdir(run_dir):
+            os.makedirs(run_dir)
+
+        print(run_dir)
+        print(fname)
+
+        # Do training
         for epoch in range(self.epochs):
+
+            max_val_acc = 0
+
             for i, (images, labels) in enumerate(self.training_dataloader):
                 images, labels = images.to(self.device), labels.to(self.device)
                 self.model.train()
@@ -59,24 +79,15 @@ class MyTraining:
                     print(
                         f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
                     )
+
+                    if val_acc > max_val_acc:
+                        print(f"New max val accuracy recorded: save weights.")
+                        max_val_acc = val_acc
+                        # Save model weights 
+                        torch.save(self.model, os.path.join(run_dir, fname+'.pth'))
+                        
             
-            # Save model weights and hyperparams
-            day = train_datetime.strftime("%d")
-            month = train_datetime.strftime("%m")
-            year = train_datetime.strftime("%Y")
-            hour = train_datetime.strftime("%H")
-            minute = train_datetime.strftime("%M")
-            separator = "_"
-            fname = separator.join([day, month, year, hour, minute])
-            print(fname)
-
-            run_dir = os.path.join(PROJECT_ROOT, "runs", self.name)
-            if not os.path.isdir(run_dir):
-                os.makedirs(run_dir)
-            print(run_dir)
-
-            torch.save(self.model, os.path.join(run_dir, fname+'.pth'))
-
+            # Save hyperparameters at the end of training
             hyperparams = {
                 "epochs": self.epochs,
                 "batch_size": self.batch_size, 
