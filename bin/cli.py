@@ -59,7 +59,11 @@ def train(
 
 
 @main.command()
-def infer():
+def infer(
+    model_name: str = typer.Option(
+        ..., "-m", "--model_name", help="Name of model you want to use for inference."
+    )
+):
     run_path = Path("./path/to/one/of/your/training/runs")
     label = 6
 
