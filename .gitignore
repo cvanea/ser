@@ -136,3 +136,5 @@ dmypy.json
 # Helper scripts
 bin/cli_old.py
 runs/
+
+.vscode/
