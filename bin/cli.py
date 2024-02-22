@@ -60,17 +60,16 @@ def train(
 
 @main.command()
 def infer(
-    model_name: str = typer.Option(
-        ..., "-m", "--model", help="Name of model you want to use for inference."
+    name: str = typer.Option(
+        ..., "-n", "--name", help="Name of experiment you want to use for inference."
     ),
     label: int = typer.Option(
         6, '-l', '--label', help="Label of image to run inference on."
     )
 ):
-    model_path = Path(os.path.join(RESULTS_DIR, model_name))
     
     run_infer(
-        model_path, 
+        name, 
         label,
         test_dataloader(batch_size=1, transforms=transforms(normalize))
     )

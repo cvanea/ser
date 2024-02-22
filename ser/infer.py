@@ -1,6 +1,13 @@
 import torch
+import json
+import glob
+import os
+from pathlib import Path
+import pprint
 
-def run_infer(model_path, label, dataloader):
+from ser.constants import RESULTS_DIR
+
+def run_infer(name, label, dataloader):
     
     # select image to run inference for
     images, labels = next(iter(dataloader))
@@ -9,16 +16,21 @@ def run_infer(model_path, label, dataloader):
         images, labels = next(iter(dataloader))
 
     # load the model
+    model_path = _get_path(name, 'model')
     model = torch.load(model_path)
+
+    _print_summary(name)
 
     # run inference
     model.eval()
     output = model(images)
     pred = output.argmax(dim=1, keepdim=True)[0].item()
     confidence = max(list(torch.exp(output)[0]))
+    print(f'Predicted label: {pred}')
+    print(f'Confidence: {confidence}')
+
     pixels = images[0][0]
     print(_generate_ascii_art(pixels))
-    print(f"This is a {pred}")
 
 
 def _generate_ascii_art(pixels):
@@ -40,3 +52,29 @@ def _pixel_to_char(pixel):
         return "."
     else:
         return " "
+
+
+def _get_path(name, file):
+
+    run_dir = RESULTS_DIR / name 
+
+    if file == 'model':
+        return list(Path(run_dir).glob('*.pth'))[0]
+    elif file == 'params':
+        return list(Path(run_dir).glob('*.json'))[0]
+    else:
+        print('Incorrect file specified.')
+        return None
+
+
+def _print_summary(name):
+
+    params_path = _get_path(name, 'params')
+
+    content = params_path.read_text()
+    params = json.loads(content)
+    
+    print(f'Running inference using model from {name}')
+    print('Hyperparams used:')
+    pprint.pprint(params)
+    
