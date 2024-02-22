@@ -81,30 +81,31 @@ class MyTraining:
                     f"Train Epoch: {epoch} | Batch: {i}/{len(self.training_dataloader)} "
                     f"| Loss: {loss.item():.4f}"
                 )
-                # validate
-                val_loss = 0
-                correct = 0
-                with torch.no_grad():
-                    for images, labels in self.validation_dataloader:
-                        images, labels = images.to(self.device), labels.to(self.device)
-                        self.model.eval()
-                        output = self.model(images)
-                        val_loss += F.nll_loss(output, labels, reduction="sum").item()
-                        pred = output.argmax(dim=1, keepdim=True)
-                        correct += pred.eq(labels.view_as(pred)).sum().item()
-                    val_loss /= len(self.validation_dataloader.dataset)
-                    val_acc = correct / len(self.validation_dataloader.dataset)
+                
+            # validate
+            val_loss = 0
+            correct = 0
+            with torch.no_grad():
+                for images, labels in self.validation_dataloader:
+                    images, labels = images.to(self.device), labels.to(self.device)
+                    self.model.eval()
+                    output = self.model(images)
+                    val_loss += F.nll_loss(output, labels, reduction="sum").item()
+                    pred = output.argmax(dim=1, keepdim=True)
+                    correct += pred.eq(labels.view_as(pred)).sum().item()
+                val_loss /= len(self.validation_dataloader.dataset)
+                val_acc = correct / len(self.validation_dataloader.dataset)
 
-                    print(
-                        f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
-                    )
+                print(
+                    f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
+                )
 
-                    if val_acc > max_val_acc:
-                        print(f"New max val accuracy recorded: save weights.")
-                        max_val_acc = val_acc
-                        # Save model weights 
-                        torch.save(self.model, os.path.join(run_dir, fname+'.pth'))
-                        
+                if val_acc > max_val_acc:
+                    print(f"New max val accuracy recorded: save weights.")
+                    max_val_acc = val_acc
+                    # Save model weights 
+                    torch.save(self.model, os.path.join(run_dir, fname+'.pth'))
+                    
             
             # Save hyperparameters at the end of training
             # Get latest commit associated with train.py and add to hyperparams
