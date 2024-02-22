@@ -6,6 +6,7 @@ from ser.model import Net
 from ser.transforms import MyTransforms
 from ser.data import MyDataLoader
 from ser.train import MyTraining
+import torchvision.models as models
 
 main = typer.Typer()
 
@@ -31,7 +32,8 @@ def train(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load model
-    model = Net().to(device)
+    #model = Net().to(device)
+    model = models.vgg16()
 
     # setup params
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
