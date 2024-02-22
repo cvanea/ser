@@ -1,9 +1,6 @@
-from pathlib import Path
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
+from ser.constants import *
 
 def data_loader(batch_size, ts):
 

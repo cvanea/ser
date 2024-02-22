@@ -1,9 +1,12 @@
 import torch
 import typer
 
+from ser.data import data_loader
+from ser.transforms import transform
 from ser.model import Net
 from ser.data import data_loader
 from ser.train import training
+from ser.model import Net
 
 main = typer.Typer()
 
@@ -24,7 +27,15 @@ def train(
 ):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    training(device, name, epochs, batch_size, learning_rate)
+
+    # load model
+    model = Net().to(device)
+    # transforms 
+    ts = transform()
+    # dataloaders
+    training_dataloader, validation_dataloader = data_loader(batch_size, ts)
+    # train 
+    training(model, device, name, epochs, batch_size, learning_rate, training_dataloader, validation_dataloader)
     
 
 @main.command()
