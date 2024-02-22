@@ -1,15 +1,15 @@
 from datetime import datetime
 from pathlib import Path
-
 import typer
 import torch
 import git
-
+import os
 from ser.train import train as run_train
 from ser.constants import RESULTS_DIR
 from ser.data import train_dataloader, val_dataloader, test_dataloader
 from ser.params import Params, save_params
 from ser.transforms import transforms, normalize
+from ser.infer import run_infer
 
 main = typer.Typer()
 
@@ -61,47 +61,19 @@ def train(
 @main.command()
 def infer(
     model_name: str = typer.Option(
-        ..., "-m", "--model_name", help="Name of model you want to use for inference."
+        ..., "-m", "--model", help="Name of model you want to use for inference."
+    ),
+    label: int = typer.Option(
+        6, '-l', '--label', help="Label of image to run inference on."
     )
 ):
-    run_path = Path("./path/to/one/of/your/training/runs")
-    label = 6
+    model_path = Path(os.path.join(RESULTS_DIR, model_name))
+    
+    run_infer(
+        model_path, 
+        label,
+        test_dataloader(batch_size=1, transforms=transforms(normalize))
+    )
 
-    # select image to run inference for
-    dataloader = test_dataloader(1, transforms(normalize))
-    images, labels = next(iter(dataloader))
-    while labels[0].item() != label:
-        images, labels = next(iter(dataloader))
-
-    # load the model
-    model = torch.load(run_path / "model.pt")
-
-    # run inference
-    model.eval()
-    output = model(images)
-    pred = output.argmax(dim=1, keepdim=True)[0].item()
-    confidence = max(list(torch.exp(output)[0]))
-    pixels = images[0][0]
-    print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
-
-
-def generate_ascii_art(pixels):
-    ascii_art = []
-    for row in pixels:
-        line = []
-        for pixel in row:
-            line.append(pixel_to_char(pixel))
-        ascii_art.append("".join(line))
-    return "\n".join(ascii_art)
-
-
-def pixel_to_char(pixel):
-    if pixel > 0.99:
-        return "O"
-    elif pixel > 0.9:
-        return "o"
-    elif pixel > 0:
-        return "."
-    else:
-        return " "
+if __name__ == "__main__":
+    typer.run(infer)
